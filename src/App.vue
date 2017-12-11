@@ -11,7 +11,9 @@
         </b-col>
         <b-col xs="12" sm="6" class="column-right">
           <div class="price-container">
-            ${{BTCPrice}}<br/>
+            <span class="btc-container">
+              ${{BTCPrice}}
+            </span><br/>
             ${{ETHPrice}}<br/>
             ${{LTCPrice}}<br/>
           </div>
@@ -26,19 +28,29 @@ import axios from 'axios'
 export default {
   name: 'app',
   data: () => ({
-    BTCPrice: 0,
-    ETHPrice: 0,
-    LTCPrice: 0,
+    BTCPrice: '',
+    ETHPrice: '',
+    LTCPrice: '',
     errors: []
   }),
   created: function () {
     this.getEverything()
+
     setInterval(function () {
       this.getEverything()
       console.log('updated')
     }.bind(this), 1000)
   },
   methods: {
+    convertCurrency: function (num) {
+      // let newNum = num.toString()
+      // console.log(newNum)
+      if (num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      } else {
+        return 0
+      }
+    },
     getEverything: function () {
       this.getBTCPrice()
       this.getETHPrice()
@@ -47,7 +59,7 @@ export default {
     getBTCPrice: function () {
       axios.get(`https://api.coinbase.com/v2/prices/BTC-USD/spot`)
       .then(response => {
-        this.BTCPrice = response.data.data.amount
+        this.BTCPrice = this.convertCurrency(response.data.data.amount)
       })
       .catch(e => {
         this.errors.push(e)
@@ -56,7 +68,7 @@ export default {
     getETHPrice: function () {
       axios.get(`https://api.coinbase.com/v2/prices/ETH-USD/spot`)
       .then(response => {
-        this.ETHPrice = response.data.data.amount
+        this.ETHPrice = this.convertCurrency(response.data.data.amount)
       })
       .catch(e => {
         this.errors.push(e)
@@ -65,7 +77,7 @@ export default {
     getLTCPrice: function () {
       axios.get(`https://api.coinbase.com/v2/prices/LTC-USD/spot`)
       .then(response => {
-        this.LTCPrice = response.data.data.amount
+        this.LTCPrice = this.convertCurrency(response.data.data.amount)
       })
       .catch(e => {
         this.errors.push(e)
@@ -98,6 +110,12 @@ html, body {
 
 .max-height {
   height: 100%
+}
+
+.btc-container {
+  background-color: #111;
+  padding: 2px 0px 2px 12px;
+  margin-left: -12px;
 }
 
 .crypto-container {
